@@ -7,13 +7,12 @@ from django.shortcuts import render
 from board.models import Board
 from user.models import User
 
-
 def list(request):
 
     PAGE_ROW_COUNT = 5
     PAGE_DISPLAY_COUNT = 5
 
-    board_all_list = Board.objects.all().order_by('-id')  # 전체 리스트 가져오기
+    board_all_list = Board.objects.all().order_by('-groupno', 'orderno') # 전체 리스트 가져오기 order by group_no desc, order_no asc
 
     paginator = Paginator(board_all_list, PAGE_ROW_COUNT)
 
@@ -83,21 +82,18 @@ def write(request):
     else:  # 답글이면
 
         # 해당 board_id에 해당하는 객체 가져오기
-        board = Board.objects.get(id=board_id)
-        print(board.groupno)
+        board_parent = Board.objects.get(id=board_id)
+        print(board_parent.groupno)
+        board = Board()
 
-        # updateOrderNo
-        # 여러행 업데이트
-        Board.objects.filter(groupno=board.groupno).filter(orderno__gte=board.orderno).update(orderno=F('orderno')+1)
-
-        # insertReply
         board.title = request.POST['title']
         board.content = request.POST['content']
-        board.groupno = board.groupno
-        board.orderno = board.orderno + 1
-        board.depth = board.depth + 1
-        user = User.objects.get(id=request.session['authuser']['id'])
-        board.user = user
+        board.groupno = board_parent.groupno
+        board.orderno = board_parent.orderno + 1
+
+        Board.objects.filter(groupno=board.groupno).filter(orderno__gte=board.orderno).update(orderno=F('orderno') + 1)
+        board.depth = board_parent.depth + 1
+        board.user_id = request.session['authuser']['id']
 
         board.save()
 
