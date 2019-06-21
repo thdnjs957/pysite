@@ -1,0 +1,158 @@
+- 기본적으로 장고 프로젝트 한개 당 하나의 DB를 사용한다. 왜냐면 장고프로젝트에는 기본적으로 관리 프로그램이 내장되어있기 때문에
+
+- postgresql에 dt 생성 및 계정 생성 접근 권한 부여
+psql -U postgres
+1. create database pysite;
+2. create user djdb with password 'pysite';
+3. grant all privileges on all tables in schema public to pysite; \q
+4. vi /cafe24/pgsql/data/pg_hba.conf 접근 설정
+
+/etc/init.d/postgres stop
+/etc/init.d/postgres start
+
+
+- pycharm(community version) 에서 Django 프로젝트 시작하기 -
+
+1. pycharm 프로젝트 생성(pysite 프로젝트)
+
+2. Django 설치
+    [terminal]에서
+
+    pip install django
+
+3. 장고 프로젝트 생성
+    [terminal]  파이참 프로젝트 한 단계 더 밑에서 장고 프로젝트를 만들어버림
+    django-admin startproject python_ch3
+
+4. 디렉토리 정리 ( 파이참 professional 이면 이럴 필요없음 )
+    -> pycharm 프로젝트와 django 프로젝트의 디렉토리를 일치시킴
+    1) manage.py 를 맨위로 옮김
+    2) 세팅들을 한칸 위로 올림
+
+5. psycopg2(postgres db lib) 설치
+    [terminal]
+    pip install psycopg2
+
+    만약 mysql 로 하고싶으면
+    mysqlclient 설치하면 됨
+
+6. settings.py 가서 설정작업 하기
+
+   1) TIME_ZONE = 'Asia/Seoul'
+   2)
+       DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': 'pysite',
+                'USER': 'pysite',
+                'PASSWORD': 'pysite',
+                'HOST': '192.168.1.211',
+                'PORT': 5432
+                }
+        }
+
+   3) 공통으로 쓰는 template 디렉토리를 지정해야함
+       TEMPLATES = [
+            ...
+              'DIRS': [os.path.join(BASE_DIR, 'templates')],
+            ...
+       ]
+
+       pysite ( 최상단에 만들기)
+           |
+           | ------ templates (new directory 로 생성)
+
+
+    4) static 세팅 하기
+
+    settings.py가서
+    STATICFILES_DIRS = (os.path.join(BASE_DIR, 'statics'),)  # 내가 추가한 statics
+    STATIC_URL = '/assets/'
+
+
+
+7. 장고 프로젝트의 기본 관리 어플리케이션이 사용하는 테이블을 생성
+
+    [terminal] # 디비와 어떤 싱크를 맞출때는 터미널에서 이렇게
+    python manage.py migrate # manage.py 라는 옵션을 돌린다
+
+8. 장고 프로젝트의 기본 관리 어플리케이션
+    (관리 계정 생성하기)
+
+    [terminal]
+    python manage.py createsuperuser
+
+9. 지금까지 작업 내용 확인하기
+    서버 띄우기
+    [terminal]
+    python manage.py runserver 0.0.0.0:8888
+
+
+Application 작업
+    1) hello world
+        1. 어플리케이션 추가
+            [terminal]
+            python manage.py startapp main ( site 정보 저장하려면 모델이 있어야 함 ) 순서 꼭 지키기
+
+        2. 어플리케이션 등록
+            settings.py 에
+
+            INSTALLED_APPS = [
+                'helloworld', 이거 추가하기
+                'django.contrib.admin',
+                'django.contrib.auth',
+                'django.contrib.contenttypes',
+                'django.contrib.sessions',
+                'django.contrib.messages',
+                'django.contrib.staticfiles',
+            ]
+
+        3. template (view 작업)
+                | ------ helloworld (디렉토리)
+
+        4. Model 정의 (helloworld에서는 생략)
+        5. urls.py 에서 url mapping ( url-view의 handler 메소드 매핑 )
+        6. views.py 핸들러 함수 구현
+        7. 화면이 필요한 forwarding 일 경우, 해당 template 작업
+
+
+      1) emaillist
+        1. 어플리케이션 추가
+            [terminal]
+            python manage.py startapp emaillist
+
+        2. 어플리케이션 등록
+            settings.py 에
+
+            INSTALLED_APPS = [
+                'emaillist', 이거 추가하기
+                'django.contrib.admin',
+                'django.contrib.auth',
+                'django.contrib.contenttypes',
+                'django.contrib.sessions',
+                'django.contrib.messages',
+                'django.contrib.staticfiles',
+            ]
+
+        3. template (view 작업)
+                | ------ User (디렉토리)
+
+        4-1 Model 정의
+        4-2 admin.py 에 admin.site.register(User) 추가
+
+        4-3 migrations 이름의 DDL Python 모듈을 생성 ( models.py 를 탐색해서 자동으로 만들어 줌)
+            tool 이 존재 -> python manage.py makemigrations
+
+        4-4. 모델이 바뀔때마다 이 작업 꼭 해주기
+            물리DB 와 스키마 동기화 작업을 한다
+            python manage.py migrate
+
+        5. urls.py 에서 url mapping ( url-view의 handler 메소드 매핑 )
+        6. views.py 핸들러 함수 구현
+        7. 화면이 필요한 forwarding 일 경우, 해당 template 작업
+
+
+
+
+manage -> 웹서버가 내장 되어 있음
+settings -> db, application들 추가하긔

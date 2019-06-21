@@ -1,0 +1,24 @@
+1. model
+2. /guestbook/deletform/10
+   urls.py
+
+    path('helloworld/hello2/<int:id>', helloworld_views.hello2),
+
+    views 함수에서는
+    def hello2(request, id = 0): # 디폴트 0
+    return HttpResponse(f'id:{id}')  # url 로 넘어오는 값 받기
+
+3. orm method
+    index(list) -> ok
+    add         -> ok
+    delete
+
+    1. repository 에서 객체를 영속화
+       guestbook = Guestbook.objects.filter(id=20).filter(password='1234')
+       guestbook.delete()
+
+[구현 안ㄷ해도 되는거]
+
+메시지 index 접는것 [django template arithmetic operation]
+개행문자 <br> replace 하지말것 ( django template )
+

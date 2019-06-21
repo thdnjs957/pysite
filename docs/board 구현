@@ -1,0 +1,30 @@
+1. limit 처리
+    start = (page-1)*pagesize
+    Board.objects.all().order_by('-refdate')[start:start+pagesize]
+
+
+
+2. insert
+    foreign key
+    그냥 board 만들고
+    board = Board()
+    board.title = ',,,'
+
+    ..
+    ..
+    board.user_id = ---세션에서
+
+    board.save()
+
+3. increase hit
+
+    board = Board......
+    board.hit = board.hit + 1
+    board.save()
+
+4. TotalCount
+    # all 하고 말고 다 패치해서 부담됨 length하지 말고
+    Board.objects.count() # count 쿼리 쓰기
+
+
+

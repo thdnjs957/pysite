@@ -1,0 +1,79 @@
+{% extends '../base.html' %}
+{% load mathfilters %}
+{% block csslink %}
+<link href="/assets/css/board.css?after" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block content %}
+
+			<div id="board">
+
+				<form id="search_form" action="" method="post">
+					<input type="text" id="kwd" name="kwd" value="">
+					<input type="submit" value="찾기">
+				</form>
+
+				<table class="tbl-ex">
+					<tr>
+						<th>번호</th>
+						<th>제목</th>
+						<th>글쓴이</th>
+						<th>조회수</th>
+						<th>작성일</th>
+						<th>&nbsp;</th>
+					</tr>
+					{% for board in board_list %}
+						<tr>
+							<td>{{ forloop.revcounter }}</td>
+							<td style="text-align:left; padding-left:${15*board.depth}px">
+								{% if board.depth != 0 %}
+									<img src='/assets/images/reply.png'>
+								{% endif %}
+								<a href="/board/view/{{ board.id }}">{{ board.title }}</a>
+							</td>
+							<td>{{ board.user.name }}</td>
+							<td>{{ board.hit }}</td>
+							<td>{{ board.regdate | date:'Y-m-d H:i:s' }}</td>
+							<td><a href="/board/delete/{{ board.id }}" class="del">삭제</a></td>
+						</tr>
+					{% endfor %}
+				</table>
+
+				<div class="pager">
+					<ul>
+						{% if startPageNum != 1 %}
+						<li>
+							<a href="/board?pageNum={{startPageNum | sub:1}}">◀</a>
+						{% else %}
+							<a href="javascript:" class="muted">◀</a>
+						</li>
+						{% endif %}
+						{% for i in bottomPages %}
+							{% if i == pageNum %}
+							<a class="selected" href="/board?pageNum={{i }}"><li>{{i }}</li></a>
+							{% else %}
+								<a href="/board?pageNum={{i }}"><li>{{i }}</li></a>
+							{% endif %}
+						{% endfor %}
+
+						{% if endPageNum < totalPageCount %}
+						<li>
+							<a href="/board?pageNum={{endPageNum | add:1}}">▶</a>
+						{% else %}
+							<a href="javascript:" class="muted"> ▶</a>
+						{% endif %}
+						</li>
+
+					</ul>
+				</div>
+
+				<div class="bottom">
+					<a href="/board/writeform" id="new-book">글쓰기</a>
+				</div>
+
+
+
+			</div>
+
+
+{% endblock %}
