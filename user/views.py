@@ -32,7 +32,7 @@ def login(request):
         return HttpResponseRedirect('/user/loginform?result=fail')
 
     # 로그인 처리
-    authuser = results[0]  # 객체가 왜 리스트로 나옴??
+    authuser = results[0]
     request.session['authuser'] = model_to_dict(authuser)  # session 객체에 authuser 넣기 # 객체를 dict 형태로 converting
 
     return HttpResponseRedirect('/')
@@ -64,7 +64,6 @@ def update(request):
     # request.session['authuser'] = model_to_dict(user)
     request.session['authuser']['name'] = user.name
     return HttpResponseRedirect('/user/updateform?result=success')
-
 
 def checkemail(request):
 

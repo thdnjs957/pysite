@@ -8,7 +8,6 @@
 			<div id="board">
 				<form class="board-form" method="post" action="/board/write">
 					{% csrf_token %}
-					<h1>{{ id }}</h1>
 					<input type = "hidden" name = "id" value="{{ id }}">
 					<table class="tbl-ex">
 						<tr>

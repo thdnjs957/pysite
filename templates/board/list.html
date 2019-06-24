@@ -5,9 +5,7 @@
 {% endblock %}
 
 {% block content %}
-
 			<div id="board">
-
 				<form id="search_form" action="" method="post">
 					<input type="text" id="kwd" name="kwd" value="">
 					<input type="submit" value="찾기">
@@ -24,8 +22,8 @@
 					</tr>
 					{% for board in board_list %}
 						<tr>
-							<td>{{ forloop.revcounter }}</td>
-							<td style="text-align:left; padding-left:${15*board.depth}px">
+							<td>{{ totalPageCount | sub:page_num | add:1 | mul:page_row_count | sub:forloop.counter |add:1}}</td>
+							<td style="text-align:left; padding-left:{{board.depth | mul:15 }}px">
 								{% if board.depth != 0 %}
 									<img src='/assets/images/reply.png'>
 								{% endif %}
@@ -34,46 +32,48 @@
 							<td>{{ board.user.name }}</td>
 							<td>{{ board.hit }}</td>
 							<td>{{ board.regdate | date:'Y-m-d H:i:s' }}</td>
-							<td><a href="/board/delete/{{ board.id }}" class="del">삭제</a></td>
+							<td>
+								{% if request.session.authuser is not None and request.session.authuser.id == board.user.id %}
+									<a href="/board/delete/{{ board.id }}" class="del">삭제</a>
+								{% endif %}
+							</td>
 						</tr>
 					{% endfor %}
 				</table>
 
 				<div class="pager">
 					<ul>
-						{% if startPageNum != 1 %}
+						{% if startpage_num != 1 %}
 						<li>
-							<a href="/board?pageNum={{startPageNum | sub:1}}">◀</a>
+							<a href="/board?page_num={{startpage_num | sub:1}}">◀</a>
 						{% else %}
-							<a href="javascript:" class="muted">◀</a>
+							<a href="javascript:" class="disabled">◀</a>
 						</li>
 						{% endif %}
 						{% for i in bottomPages %}
-							{% if i == pageNum %}
-							<a class="selected" href="/board?pageNum={{i }}"><li>{{i }}</li></a>
-							{% else %}
-								<a href="/board?pageNum={{i }}"><li>{{i }}</li></a>
-							{% endif %}
+							{% if i == page_num %}
+								<a href="/board?page_num={{i }}"><li class="selected">{{ i }}</li></a>
+								{% else %}
+									<a href="/board?page_num={{i }}"><li >{{ i }}</li ></a>
+								{% endif %}
+							</li>
+
 						{% endfor %}
 
-						{% if endPageNum < totalPageCount %}
+						{% if endpage_num < totalPageCount %}
 						<li>
-							<a href="/board?pageNum={{endPageNum | add:1}}">▶</a>
+							<a href="/board?page_num={{endpage_num | add:1}}">▶</a>
 						{% else %}
-							<a href="javascript:" class="muted"> ▶</a>
+							<a href="javascript:" class="disabled">▶</a>
 						{% endif %}
 						</li>
 
 					</ul>
 				</div>
-
 				<div class="bottom">
-					<a href="/board/writeform" id="new-book">글쓰기</a>
+					{% if request.session.authuser is not None  %}
+						<a href="/board/writeform" id="new-book">글쓰기</a>
+					{% endif %}
 				</div>
-
-
-
 			</div>
-
-
 {% endblock %}
