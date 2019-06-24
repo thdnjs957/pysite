@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import F, Subquery, Max, Q
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 
 # Create your views here.
@@ -120,14 +120,28 @@ def view(request, id=0):
     # data = {
     #     'user': user
     # }
+    isGet = False
+
     board = Board.objects.get(id=id)
 
-    Board.objects.filter(id=board.id).update(hit=board.hit + 1)
-
-    print(board.hit, type(board.hit))
     data = {'board': board}
 
-    return render(request, 'board/view.html', data)
+    print(request.COOKIES['cookie'])
+
+    if 'cookie' in request.COOKIES:
+        cookie_data = request.COOKIES['cookie']
+        if board.id == int(cookie_data):
+            isGet = True
+
+    if isGet == False:
+        Board.objects.filter(id=board.id).update(hit=board.hit + 1)
+
+    # 쿠키 render 처리하고 set_cookie 해주기
+    response = render(request, 'board/view.html', data)
+
+    response.set_cookie('cookie', id, 60*60)  # 한시간 동안 유지
+
+    return response
 
 def modifyform(request, id=0):
 
