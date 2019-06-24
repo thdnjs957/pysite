@@ -6,8 +6,9 @@
 
 {% block content %}
 			<div id="board">
-				<form id="search_form" action="" method="post">
-					<input type="text" id="kwd" name="kwd" value="">
+				<form id="search_form" action="/board/" method="post">
+					{% csrf_token %}
+					<input type="text" id="kwd" name="kwd" value="{{ kwd }}">
 					<input type="submit" value="찾기">
 				</form>
 
@@ -53,10 +54,10 @@
 						{% for i in bottomPages %}
 							{% if i == page_num %}
 								<a href="/board?page_num={{i }}"><li class="selected">{{ i }}</li></a>
-								{% else %}
+							{% else %}
 									<a href="/board?page_num={{i }}"><li >{{ i }}</li ></a>
-								{% endif %}
-							</li>
+							{% endif %}
+						</li>
 
 						{% endfor %}
 

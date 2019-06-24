@@ -1,5 +1,5 @@
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import F, Subquery, Max
+from django.db.models import F, Subquery, Max, Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
@@ -10,10 +10,17 @@ import math
 
 def list(request):
 
+    kwd = request.POST.get('kwd') or request.GET.get('kwd')
+
+    if kwd == None : kwd = ''
+
     PAGE_ROW_COUNT = 5
     PAGE_DISPLAY_COUNT = 5
 
-    board_all_list = Board.objects.all().order_by('-groupno', 'orderno') # 전체 리스트 가져오기 order by group_no desc, order_no asc
+    if kwd == '':
+        board_all_list = Board.objects.all().order_by('-groupno', 'orderno') # 전체 리스트 가져오기 order by group_no desc, order_no asc
+    else:
+        board_all_list = Board.objects.all().filter(Q(title__contains=kwd) | Q(content__contains=kwd)).order_by('-groupno','orderno')
 
     paginator = Paginator(board_all_list, PAGE_ROW_COUNT)
 
@@ -46,13 +53,13 @@ def list(request):
             'bottomPages': bottomPages,
             'totalPageCount': totalPageCount,
             'startpage_num': startpage_num,
-            'endpage_num': endpage_num
+            'endpage_num': endpage_num,
+            'kwd': kwd
         }
 
     return render(request, 'board/list.html', data)
 
 def writeform(request):
-
 
     if request.method == 'GET' and 'id' in request.GET:
         id = request.GET['id']
@@ -92,7 +99,6 @@ def write(request):
 
         # 해당 board_id에 해당하는 객체 가져오기
         board_parent = Board.objects.get(id=board_id)
-        print(board_parent.groupno)
         board = Board()
 
         board.title = request.POST['title']
