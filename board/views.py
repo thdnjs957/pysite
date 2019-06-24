@@ -6,6 +6,7 @@ from django.shortcuts import render
 # Create your views here.
 from board.models import Board
 from user.models import User
+import math
 
 def list(request):
 
@@ -16,8 +17,7 @@ def list(request):
 
     paginator = Paginator(board_all_list, PAGE_ROW_COUNT)
 
-    page_num = request.GET.get('pageNum')  # list에서 넘긴 pageNum
-
+    page_num = request.GET.get('page_num')  # list에서 넘긴 page_num
     totalPageCount = paginator.num_pages  # 전체 페이지 갯수
 
     try:
@@ -31,15 +31,16 @@ def list(request):
 
     page_num = int(page_num)
 
-    startpage_num = 1 + ((page_num - 1) / PAGE_DISPLAY_COUNT) * PAGE_DISPLAY_COUNT
-    endpage_num = startpage_num + PAGE_DISPLAY_COUNT - 1
+    endpage_num = math.ceil(page_num / PAGE_DISPLAY_COUNT) * PAGE_DISPLAY_COUNT
+    startpage_num = (endpage_num - PAGE_ROW_COUNT) + 1
 
     if totalPageCount < endpage_num:
         endpage_num = totalPageCount
 
-    bottomPages = range(int(startpage_num), endpage_num + 1)
+    bottomPages = range(startpage_num, endpage_num + 1)
 
     data = {
+            'page_row_count': PAGE_ROW_COUNT,
             'board_list': board_list,
             'page_num': page_num,
             'bottomPages': bottomPages,
@@ -51,6 +52,8 @@ def list(request):
     return render(request, 'board/list.html', data)
 
 def writeform(request):
+
+
     if request.method == 'GET' and 'id' in request.GET:
         id = request.GET['id']
     else:
@@ -59,11 +62,17 @@ def writeform(request):
     data = {
         'id': id
     }
+
     # data = {'boardlist': board}
     return render(request, 'board/write.html', data)
 
-
 def write(request):
+
+    # authuser = request.session['authuser']
+    #
+    # if authuser is None:
+    #     return HttpResponseRedirect('/board')
+
     board_id = request.POST['id']
     if board_id == '0':  # 그냥 글쓰기이면
         board = Board()
@@ -100,6 +109,7 @@ def write(request):
     return HttpResponseRedirect('/board')
 
 def view(request, id=0):
+
     # user = User.objects.get(id=request.session['authuser']['id'])  # 쿼리가 들어간거임 db에서 가져옴 dictionary
     # data = {
     #     'user': user
@@ -114,6 +124,7 @@ def view(request, id=0):
     return render(request, 'board/view.html', data)
 
 def modifyform(request, id=0):
+
     board = Board.objects.get(id=id)
     data = {
         'board': board
@@ -121,6 +132,7 @@ def modifyform(request, id=0):
     return render(request, 'board/modify.html', data)
 
 def modify(request, id=0):
+
     board = Board.objects.get(id=id)
     board.title = request.POST['title']
     board.content = request.POST['content']
@@ -129,9 +141,8 @@ def modify(request, id=0):
     return HttpResponseRedirect('/board/view/' + str(board.id) + '?result=success')
 
 def delete(request, id=0):
+
     board = Board.objects.filter(id=id)
     board.delete()
     return HttpResponseRedirect('/board')
-
-
 
